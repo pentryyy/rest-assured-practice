@@ -1,0 +1,8 @@
+# Target folder
+target/
+
+### IntelliJ IDEA ###
+.idea/
+
+### VS Code ###
+.vscode/
