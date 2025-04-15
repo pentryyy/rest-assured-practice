@@ -1,61 +1,36 @@
 package com.pentryyy;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 public class LoginTest {
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         RestAssured.baseURI = "http://193.233.193.42:9091";
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
-
-    @ParameterizedTest(name = "[{index}] {0}, {1}")
-    @CsvFileSource(
-        resources = "/LoginTestData.csv",
-        numLinesToSkip = 1,
-        delimiter = ';',
-        nullValues = {"NULL", "N/A"}
-    )
-    void testLoginWithDifferentCredentials(
-        String username,
-        String password,
-        String expectedResult
-    ) {
-        username = processEmptyValue(username);
-        password = processEmptyValue(password);
-
-        given()
-            .contentType(ContentType.URLENC)
-            .formParam("username", username)
-            .formParam("password", password)
-        .when()
-            .post("/login")
-        .then()
-            .assertThat()
-            .statusCode(getExpectedStatusCode(expectedResult))
-            .body(
-                expectedResult.equals("success") 
-                    ? "access_token" 
-                    : "error", 
-                expectedResult.equals("success") 
-                    ? notNullValue() 
-                    : equalTo("Invalid credentials")
-            );
-    }
-
-    private String processEmptyValue(String value) {
-        return "Empty".equalsIgnoreCase(value.trim()) ? "" : value;
-    }
-
-    private int getExpectedStatusCode(String expectedResult) {
-        return "success".equals(expectedResult) ? 200 : 401;
+    
+    @Test
+    void testSuccessfulAuthAndRedirect() {
+        RestAssured
+            .given()
+                .queryParam("response_type", "token")
+                .queryParam("client_id", "cf6f74d5-c1b8-457f-9d4b-2348fe19440f")
+                .queryParam("redirect_uri", "http://193.233.193.42:9091/oauth")
+                .queryParam("scope", "cf6f74d5-c1b8-457f-9d4b-2348fe19440f Upsource TeamCity YouTrack%20Slack%20Integration 0-0-0-0-0")
+                .queryParam("state", "5fc6f8b5-e3b6-457d-9e8a-40c7c9b8a6df")
+                
+                .formParam("username", "volikov_mikhail")
+                .formParam("password", "2104youtrack")
+                
+                .redirects().follow(false)
+            .when()
+                .post("/hub/auth/login")
+            .then()
+                .statusCode(302)
+                .header("Location", containsString("/oauth"));
     }
 }
