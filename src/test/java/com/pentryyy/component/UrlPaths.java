@@ -1,11 +1,16 @@
 package com.pentryyy.component;
 
 public enum UrlPaths {
-    ISSUES_URL("/issues"),
-    DASHBOARD_URL("/dashboard"),
-    AGILES_URL("/agiles"),
-    REPORTS_URL("/reports"),
-    PROJECTS_URL("/projects");
+    CREATE_PROJECT_PATH("/api/admin/projects");
     
-    UrlPaths(String string) {}
+    private final String path;
+    
+    UrlPaths(String path) {
+        this.path = path;
+    }
+    
+    @Override
+    public String toString() {
+        return this.path;
+    }
 }

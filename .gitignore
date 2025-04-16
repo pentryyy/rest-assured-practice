@@ -12,3 +12,6 @@ src/test/resources/token.properties
 
 ### Maven ###
 .mvn/
+
+### User ###
+src/test/resources/user.properties
