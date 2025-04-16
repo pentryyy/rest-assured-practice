@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.pentryyy.component.BaseTest;
-import com.pentryyy.component.TokenManager;
 import com.pentryyy.component.UrlPaths;
 import com.pentryyy.component.UserManager;
 import com.pentryyy.dto.request.Project;
@@ -26,7 +25,7 @@ public class ProjectsTest extends BaseTest {
     private static String createdProjectId;
 
     @BeforeAll
-    static void setup() {
+    static void initDTO() {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
@@ -58,7 +57,6 @@ public class ProjectsTest extends BaseTest {
 
         createdProjectId =
             given()
-                .header("Authorization", "Bearer " + TokenManager.getToken())
                 .contentType(ContentType.JSON)
                 .body(project)
             .when()
@@ -69,11 +67,10 @@ public class ProjectsTest extends BaseTest {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     void testDeleteProject() {
 
         given()
-            .header("Authorization", "Bearer " + TokenManager.getToken())
         .when()
             .delete(UrlPaths.PROJECT_BY_ID.withId(createdProjectId))
         .then()
