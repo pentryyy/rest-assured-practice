@@ -1,13 +1,13 @@
-package com.pentryyy.dto.request;
+package com.pentryyy.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Builder
 @Data
-public class User {
+@NoArgsConstructor
+public class ProjectItem {
     private String id;
 
     @JsonProperty("$type")

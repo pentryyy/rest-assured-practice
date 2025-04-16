@@ -1,5 +1,10 @@
 package com.pentryyy;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -11,6 +16,7 @@ import com.pentryyy.component.UrlPaths;
 import com.pentryyy.component.UserManager;
 import com.pentryyy.dto.request.Project;
 import com.pentryyy.dto.request.User;
+import com.pentryyy.dto.response.ProjectItem;
 
 import io.restassured.http.ContentType;
 
@@ -35,8 +41,6 @@ public class ProjectsTest extends BaseTest {
 
         leader = User.builder()
                      .id(UserManager.getId())
-                     .login(UserManager.getLogin())
-                     .name(UserManager.getName())
                      .type(UserManager.getType())
                      .build();
 
@@ -66,6 +70,24 @@ public class ProjectsTest extends BaseTest {
                 .extract().path("id");
     }
 
+    @Test
+    @Order(2)
+    void testFindAllProjects() {
+        List<ProjectItem> projects = 
+            given()
+            .when()
+                .get(UrlPaths.FIND_ALL_PROJECTS.toString())
+            .then()
+                .extract().jsonPath().getList(".", ProjectItem.class);
+
+        assertFalse(projects.isEmpty());
+
+        ProjectItem project = projects.get(0);
+
+        assertNotNull(project.getId(), "Поле 'id' отсутствует");
+        assertNotNull(project.getType(), "Поле '$type' отсутствует");
+    }
+    
     @Test
     @Order(3)
     void testDeleteProject() {

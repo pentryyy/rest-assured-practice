@@ -25,40 +25,6 @@ public class UserManager {
         }
     }
 
-    public static String getLogin()  {
-        Properties properties = new Properties();
-
-        try (InputStream input = TokenManager.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-            
-            if (input == null) {
-                throw new FileNotFoundException();
-            }
-            
-            properties.load(input);
-            return properties.getProperty("login");
-
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при чтении login", e);
-        }
-    }
-
-    public static String getName()  {
-        Properties properties = new Properties();
-
-        try (InputStream input = TokenManager.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-            
-            if (input == null) {
-                throw new FileNotFoundException();
-            }
-            
-            properties.load(input);
-            return properties.getProperty("name");
-
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при чтении name", e);
-        }
-    }
-
     public static String getType()  {
         Properties properties = new Properties();
 
