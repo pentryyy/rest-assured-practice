@@ -6,3 +6,9 @@ target/
 
 ### VS Code ###
 .vscode/
+
+### Token ###
+src/test/resources/token.properties
+
+### Maven ###
+.mvn/
