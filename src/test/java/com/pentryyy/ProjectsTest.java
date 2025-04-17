@@ -60,7 +60,7 @@ public class ProjectsTest extends BaseTest {
     @Order(1)
     void testCreateProject() {
 
-        createdProjectId =
+        ProjectItem projectItem = 
             given()
                 .contentType(ContentType.JSON)
                 .body(project)
@@ -68,7 +68,12 @@ public class ProjectsTest extends BaseTest {
                 .post(UrlPaths.CREATE_PROJECT.toString())
             .then()
                 .statusCode(200)
-                .extract().path("id");
+                .extract().as(ProjectItem.class);
+
+        createdProjectId = projectItem.getId();
+
+        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
     }
 
     @Test
