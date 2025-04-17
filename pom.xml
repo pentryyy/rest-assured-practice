@@ -51,6 +51,14 @@
       <scope>test</scope>
    </dependency>
 
+    <!-- Для задания задержки между тестами -->
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.2.0</version>
+      <scope>test</scope>
+    </dependency>
+
      <!-- Data-Driven: Apache POI (для Excel) -->
     <dependency>
       <groupId>org.apache.poi</groupId>
