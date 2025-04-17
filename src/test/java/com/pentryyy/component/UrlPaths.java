@@ -14,6 +14,7 @@ public enum UrlPaths {
     CREATE_ISSUE("/api/issues"),
     FIND_ISSUE_BY_ID("/api/issues/{id}"),
     FIND_ALL_ISSUES("/api/issues"),
+    CREATE_ISSUE_COMMENT("/api/issues/{id}/comments"),
     DELETE_ISSUE_BY_ID("/api/issues/{id}");
 
     private final String path;

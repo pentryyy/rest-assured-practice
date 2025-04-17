@@ -20,6 +20,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import com.pentryyy.component.BaseTest;
 import com.pentryyy.component.UrlPaths;
 import com.pentryyy.dto.request.Issue;
+import com.pentryyy.dto.request.IssueComment;
 import com.pentryyy.dto.request.ProjectRef;
 import com.pentryyy.dto.response.ResponseItem;
 
@@ -33,7 +34,7 @@ public class IssuesTest extends BaseTest {
     private static Issue issue;
 
     @BeforeAll
-    static void createProject(){
+    static void createProject() {
 
         String createdProjectId =
             given()
@@ -69,7 +70,7 @@ public class IssuesTest extends BaseTest {
                      )
                      .build();
 
-        ResponseItem projectItem = 
+        ResponseItem responseItem = 
             given()
                 .contentType(ContentType.JSON)
                 .body(issue)
@@ -79,17 +80,17 @@ public class IssuesTest extends BaseTest {
                 .statusCode(200)
                 .extract().as(ResponseItem.class);
 
-        issue.setCreatedIssueId(projectItem.getId());
+        issue.setCreatedIssueId(responseItem.getId());
 
-        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
-        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
+        assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
     }
 
     @Test
     @Order(2)
     void testFindCurrentIssue() {
 
-        ResponseItem projectItem = 
+        ResponseItem responseItem = 
             given()
             .when()
                 .get(UrlPaths.FIND_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
@@ -97,10 +98,10 @@ public class IssuesTest extends BaseTest {
                 .statusCode(200)
                 .extract().as(ResponseItem.class);
 
-        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
-        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
+        assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
 
-        assertEquals(projectItem.getId(), issue.getCreatedIssueId(), "Поля 'id' не соответствуют");
+        assertEquals(responseItem.getId(), issue.getCreatedIssueId(), "Поля 'id' не соответствуют");
     }
 
     @Test
@@ -122,6 +123,33 @@ public class IssuesTest extends BaseTest {
         assertNotNull(project.getType(), "Поле '$type' отсутствует");
     }
     
+    @Test
+    @Order(2)
+    void testCreateIssueComment() {
+        
+        String timestamp = LocalDateTime
+            .now()
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        String text = "Комментарий к задаче " + timestamp;  
+
+        IssueComment issueComment = IssueComment.builder()
+                                                .text(text)
+                                                .build();
+                                                
+        ResponseItem responseItem = 
+            given()
+                .contentType(ContentType.JSON)
+                .body(issueComment)
+            .when()
+                .post(UrlPaths.CREATE_ISSUE_COMMENT.withId(issue.getCreatedIssueId()))
+            .then()
+                .statusCode(200)
+                .extract().as(ResponseItem.class);
+
+        assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
+    }
 
     @Test
     @Order(3)
@@ -145,7 +173,7 @@ public class IssuesTest extends BaseTest {
     }
 
     @AfterAll
-    static void deleteProject(){
+    static void deleteProject() {
 
         given()
         .when()

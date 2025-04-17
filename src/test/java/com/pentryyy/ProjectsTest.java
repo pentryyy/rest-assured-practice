@@ -28,7 +28,7 @@ public class ProjectsTest extends BaseTest {
     @Order(1)
     void testCreateProject() {
 
-        ResponseItem projectItem = 
+        ResponseItem responseItem = 
             given()
                 .contentType(ContentType.JSON)
                 .body(project)
@@ -38,17 +38,17 @@ public class ProjectsTest extends BaseTest {
                 .statusCode(200)
                 .extract().as(ResponseItem.class);
 
-        project.setCreatedProjectId(projectItem.getId());
+        project.setCreatedProjectId(responseItem.getId());
 
-        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
-        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
+        assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
     }
 
     @Test
     @Order(2)
     void testFindCurrentProject() {
 
-        ResponseItem projectItem = 
+        ResponseItem responseItem = 
             given()
             .when()
                 .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
@@ -56,10 +56,10 @@ public class ProjectsTest extends BaseTest {
                 .statusCode(200)
                 .extract().as(ResponseItem.class);
 
-        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
-        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
+        assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
 
-        assertEquals(projectItem.getId(), project.getCreatedProjectId(), "Поля 'id' не соответствуют");
+        assertEquals(responseItem.getId(), project.getCreatedProjectId(), "Поля 'id' не соответствуют");
     }
 
     @Test
