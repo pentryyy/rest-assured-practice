@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -19,9 +20,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.pentryyy.component.BaseTest;
 import com.pentryyy.component.UrlPaths;
+import com.pentryyy.dto.request.CustomFields;
 import com.pentryyy.dto.request.Issue;
 import com.pentryyy.dto.request.IssueComment;
 import com.pentryyy.dto.request.ProjectRef;
+import com.pentryyy.dto.request.UpdateIssue;
+import com.pentryyy.dto.request.Value;
 import com.pentryyy.dto.response.ResponseItem;
 
 import io.restassured.http.ContentType;
@@ -152,7 +156,52 @@ public class IssuesTest extends BaseTest {
     }
 
     @Test
+    @Disabled
     @Order(3)
+    void testUpdateIssue() {
+
+         String timestamp = LocalDateTime
+            .now()
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        String summary     = "Новый тестовый заголовок " + timestamp; 
+        String description = "Новое тестовое описание "  + timestamp;    
+
+        UpdateIssue updateIssue = UpdateIssue.builder()
+            .summary(summary)
+            .description(description)
+            .project(ProjectRef.builder()
+                .id(project.getCreatedProjectId())
+                .type("Project").build()
+            )
+            .customFields(CustomFields.builder()
+                .name("Priority")
+                .value(Value.builder()
+                    .name("Critical").build()
+                )
+                .type("SingleEnumIssueCustomField").build()
+            )
+            .type("Issue").build();
+                                                
+        ResponseItem responseItem = 
+            given()
+                .contentType(ContentType.JSON)
+                .body(updateIssue)
+            .when()
+                .put(UrlPaths.UPDATE_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
+            .then()
+                .statusCode(200)
+                .extract().as(ResponseItem.class);
+
+        issue.setCreatedIssueId(responseItem.getId());
+
+        assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
+
+    }
+
+    @Test
+    @Order(4)
     void testDeleteIssue() {
 
         given()

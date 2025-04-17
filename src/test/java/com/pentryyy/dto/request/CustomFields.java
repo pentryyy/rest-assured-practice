@@ -7,8 +7,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ProjectRef {
-    private String id;
+public class CustomFields {
+    private String name;
+    private Value value;
 
     @JsonProperty("$type")
     private String type;
