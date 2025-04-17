@@ -103,7 +103,11 @@ public class IssuesTest extends BaseTest {
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
 
-        assertEquals(responseItem.getId(), issue.getCreatedIssueId(), "Поля 'id' не соответствуют");
+        assertEquals(
+            responseItem.getId(), 
+            issue.getCreatedIssueId(),
+            "Поля 'id' не соответствуют"
+        );
     }
 
     @Test
@@ -156,7 +160,7 @@ public class IssuesTest extends BaseTest {
     @Order(3)
     void testUpdateIssue() {
 
-         String timestamp = LocalDateTime
+        String timestamp = LocalDateTime
             .now()
             .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
