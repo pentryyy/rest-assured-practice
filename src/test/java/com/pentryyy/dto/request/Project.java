@@ -1,5 +1,6 @@
 package com.pentryyy.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
@@ -20,4 +21,7 @@ public class Project {
     private String  description;
     private Boolean archived;
     private Boolean template;
+
+    @JsonIgnore
+    private String createdProjectId;
 }

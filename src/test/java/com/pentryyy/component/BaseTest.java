@@ -13,8 +13,6 @@ public class BaseTest {
     protected static User    leader;
     protected static Project project;
 
-    protected static String createdProjectId;
-
     @BeforeAll
     static void initDTO() {
 

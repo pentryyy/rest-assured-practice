@@ -38,7 +38,7 @@ public class ProjectsTest extends BaseTest {
                 .statusCode(200)
                 .extract().as(ResponseItem.class);
 
-        createdProjectId = projectItem.getId();
+        project.setCreatedProjectId(projectItem.getId());
 
         assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
@@ -48,18 +48,18 @@ public class ProjectsTest extends BaseTest {
     @Order(2)
     void testFindCurrentProject() {
 
-        ResponseItem project = 
+        ResponseItem projectItem = 
             given()
             .when()
-                .get(UrlPaths.FIND_PROJECT_BY_ID.withId(createdProjectId))
+                .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
             .then()
                 .statusCode(200)
                 .extract().as(ResponseItem.class);
 
-        assertNotNull(project.getId(), "Поле 'id' отсутствует");
-        assertNotNull(project.getType(), "Поле '$type' отсутствует");
+        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
 
-        assertEquals(project.getId(), createdProjectId, "Поля 'id' не соответствуют");
+        assertEquals(projectItem.getId(), project.getCreatedProjectId(), "Поля 'id' не соответствуют");
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ProjectsTest extends BaseTest {
 
         given()
         .when()
-            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(createdProjectId))
+            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
         .then()
             .statusCode(200);
 
@@ -96,7 +96,7 @@ public class ProjectsTest extends BaseTest {
             .untilAsserted(() -> 
                 given()
                 .when()
-                    .get(UrlPaths.FIND_PROJECT_BY_ID.withId(createdProjectId))
+                    .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
                 .then()
                     .statusCode(404)
         );

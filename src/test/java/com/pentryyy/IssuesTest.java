@@ -32,7 +32,7 @@ public class IssuesTest extends BaseTest {
     @BeforeAll
     static void createProject(){
 
-        createdProjectId =
+        String createdProjectId =
             given()
                 .contentType(ContentType.JSON)
                 .body(project)
@@ -41,7 +41,8 @@ public class IssuesTest extends BaseTest {
             .then()
                 .statusCode(200)
                 .extract().path("id");
-        
+
+        project.setCreatedProjectId(createdProjectId);
     }
 
     @Test
@@ -60,7 +61,7 @@ public class IssuesTest extends BaseTest {
                      .description(description)
                      .project(ProjectRef
                         .builder()
-                        .id(createdProjectId)
+                        .id(project.getCreatedProjectId())
                         .build()
                      )
                      .build();
@@ -70,7 +71,6 @@ public class IssuesTest extends BaseTest {
                 .contentType(ContentType.JSON)
                 .body(issue)
             .when()
-                .log().body()
                 .post(UrlPaths.CREATE_ISSUE.toString())
             .then()
                 .statusCode(200)
@@ -108,9 +108,8 @@ public class IssuesTest extends BaseTest {
 
         given()
         .when()
-            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(createdProjectId))
+            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
         .then()
             .statusCode(200);
     }
-
 }
