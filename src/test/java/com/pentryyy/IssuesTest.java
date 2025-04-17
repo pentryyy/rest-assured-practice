@@ -1,11 +1,14 @@
 package com.pentryyy;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,8 +86,46 @@ public class IssuesTest extends BaseTest {
     }
 
     @Test
+    @Order(2)
+    void testFindCurrentIssue() {
+
+        ResponseItem projectItem = 
+            given()
+            .when()
+                .get(UrlPaths.FIND_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
+            .then()
+                .statusCode(200)
+                .extract().as(ResponseItem.class);
+
+        assertNotNull(projectItem.getId(), "Поле 'id' отсутствует");
+        assertNotNull(projectItem.getType(), "Поле '$type' отсутствует");
+
+        assertEquals(projectItem.getId(), issue.getCreatedIssueId(), "Поля 'id' не соответствуют");
+    }
+
+    @Test
+    @Order(2)
+    void testFindAllIssues() {
+
+        List<ResponseItem> issues = 
+            given()
+            .when()
+                .get(UrlPaths.FIND_ALL_ISSUES.toString())
+            .then()
+                .extract().jsonPath().getList(".", ResponseItem.class);
+
+        assertFalse(issues.isEmpty());
+
+        ResponseItem project = issues.get(0);
+
+        assertNotNull(project.getId(), "Поле 'id' отсутствует");
+        assertNotNull(project.getType(), "Поле '$type' отсутствует");
+    }
+    
+
+    @Test
     @Order(3)
-    void testDeleteProject() {
+    void testDeleteIssue() {
 
         given()
         .when()
