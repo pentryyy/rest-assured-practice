@@ -1,5 +1,6 @@
 package com.pentryyy;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -64,7 +65,7 @@ public class ProjectsTest extends BaseTest {
                 .contentType(ContentType.JSON)
                 .body(project)
             .when()
-                .post(UrlPaths.CREATE_PROJECT_PATH.toString())
+                .post(UrlPaths.CREATE_PROJECT.toString())
             .then()
                 .statusCode(200)
                 .extract().path("id");
@@ -72,7 +73,26 @@ public class ProjectsTest extends BaseTest {
 
     @Test
     @Order(2)
+    void testFindCurrentProject() {
+
+        ProjectItem project = 
+            given()
+            .when()
+                .get(UrlPaths.FIND_PROJECT_BY_ID.withId(createdProjectId))
+            .then()
+                .statusCode(200)
+                .extract().as(ProjectItem.class);
+
+        assertNotNull(project.getId(), "Поле 'id' отсутствует");
+        assertNotNull(project.getType(), "Поле '$type' отсутствует");
+
+        assertEquals(project.getId(), createdProjectId, "Поля 'id' не соответствуют");
+    }
+
+    @Test
+    @Order(2)
     void testFindAllProjects() {
+
         List<ProjectItem> projects = 
             given()
             .when()
@@ -94,8 +114,14 @@ public class ProjectsTest extends BaseTest {
 
         given()
         .when()
-            .delete(UrlPaths.PROJECT_BY_ID.withId(createdProjectId))
+            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(createdProjectId))
         .then()
             .statusCode(200);
+
+        given()
+        .when()
+            .get(UrlPaths.FIND_PROJECT_BY_ID.withId(createdProjectId))
+        .then()
+            .statusCode(404);
     }
 }
