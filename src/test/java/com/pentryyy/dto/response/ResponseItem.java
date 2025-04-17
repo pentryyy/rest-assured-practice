@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ProjectItem {
+public class ResponseItem {
     private String id;
 
     @JsonProperty("$type")

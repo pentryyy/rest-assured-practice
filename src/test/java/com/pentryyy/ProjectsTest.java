@@ -14,7 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.pentryyy.component.BaseTest;
 import com.pentryyy.component.UrlPaths;
-import com.pentryyy.dto.response.ProjectItem;
+import com.pentryyy.dto.response.ResponseItem;
 
 import io.restassured.http.ContentType;
 
@@ -28,7 +28,7 @@ public class ProjectsTest extends BaseTest {
     @Order(1)
     void testCreateProject() {
 
-        ProjectItem projectItem = 
+        ResponseItem projectItem = 
             given()
                 .contentType(ContentType.JSON)
                 .body(project)
@@ -36,7 +36,7 @@ public class ProjectsTest extends BaseTest {
                 .post(UrlPaths.CREATE_PROJECT.toString())
             .then()
                 .statusCode(200)
-                .extract().as(ProjectItem.class);
+                .extract().as(ResponseItem.class);
 
         createdProjectId = projectItem.getId();
 
@@ -48,13 +48,13 @@ public class ProjectsTest extends BaseTest {
     @Order(2)
     void testFindCurrentProject() {
 
-        ProjectItem project = 
+        ResponseItem project = 
             given()
             .when()
                 .get(UrlPaths.FIND_PROJECT_BY_ID.withId(createdProjectId))
             .then()
                 .statusCode(200)
-                .extract().as(ProjectItem.class);
+                .extract().as(ResponseItem.class);
 
         assertNotNull(project.getId(), "Поле 'id' отсутствует");
         assertNotNull(project.getType(), "Поле '$type' отсутствует");
@@ -66,16 +66,16 @@ public class ProjectsTest extends BaseTest {
     @Order(2)
     void testFindAllProjects() {
 
-        List<ProjectItem> projects = 
+        List<ResponseItem> projects = 
             given()
             .when()
                 .get(UrlPaths.FIND_ALL_PROJECTS.toString())
             .then()
-                .extract().jsonPath().getList(".", ProjectItem.class);
+                .extract().jsonPath().getList(".", ResponseItem.class);
 
         assertFalse(projects.isEmpty());
 
-        ProjectItem project = projects.get(0);
+        ResponseItem project = projects.get(0);
 
         assertNotNull(project.getId(), "Поле 'id' отсутствует");
         assertNotNull(project.getType(), "Поле '$type' отсутствует");

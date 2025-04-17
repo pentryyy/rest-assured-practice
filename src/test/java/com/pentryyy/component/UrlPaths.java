@@ -11,7 +11,10 @@ public enum UrlPaths {
     DELETE_PROJECT_BY_ID("/api/admin/projects/{id}"),
 
     // ------------------------ Url пути для работы с разделом задач -------------------------
-    CREATE_ISSUE("/api/issues");
+    CREATE_ISSUE("/api/issues"),
+    FIND_ISSUE_BY_ID("/api/issues/{id}"),
+    FIND_ALL_ISSUES("/api/issues"),
+    DELETE_ISSUE_BY_ID("/api/issues/{id}");
 
     private final String path;
     
