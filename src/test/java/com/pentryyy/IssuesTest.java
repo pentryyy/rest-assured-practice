@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -65,14 +65,12 @@ public class IssuesTest extends BaseTest {
         String description = "Тестовое описание "  + timestamp;     
 
         issue = Issue.builder()
-                     .summary(summary)
-                     .description(description)
-                     .project(ProjectRef
-                        .builder()
-                        .id(project.getCreatedProjectId())
-                        .build()
-                     )
-                     .build();
+            .summary(summary)
+            .description(description)
+            .project(ProjectRef.builder()
+                .id(project.getCreatedProjectId())
+                .type("Project").build()
+            ).build();
 
         ResponseItem responseItem = 
             given()
@@ -138,8 +136,7 @@ public class IssuesTest extends BaseTest {
         String text = "Комментарий к задаче " + timestamp;  
 
         IssueComment issueComment = IssueComment.builder()
-                                                .text(text)
-                                                .build();
+            .text(text).build();
                                                 
         ResponseItem responseItem = 
             given()
@@ -156,7 +153,6 @@ public class IssuesTest extends BaseTest {
     }
 
     @Test
-    @Disabled
     @Order(3)
     void testUpdateIssue() {
 
@@ -174,15 +170,14 @@ public class IssuesTest extends BaseTest {
                 .id(project.getCreatedProjectId())
                 .type("Project").build()
             )
-            .customFields(CustomFields.builder()
+            .customFields(Collections.singletonList(CustomFields.builder()
                 .name("Priority")
                 .value(Value.builder()
-                    .name("Critical").build()
-                )
+                    .name("Critical").build())
                 .type("SingleEnumIssueCustomField").build()
-            )
+            ))
             .type("Issue").build();
-                                                
+
         ResponseItem responseItem = 
             given()
                 .contentType(ContentType.JSON)
@@ -197,7 +192,6 @@ public class IssuesTest extends BaseTest {
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
-
     }
 
     @Test

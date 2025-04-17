@@ -1,5 +1,7 @@
 package com.pentryyy.dto.request;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -12,11 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateIssue {
-    private String       summary;
-    private String       description;
-    private ProjectRef   project;
-    private CustomFields customFields;
-
+    private String             summary;
+    private String             description;
+    private ProjectRef         project;
+    private List<CustomFields> customFields;
+    
     @JsonProperty("$type")
     private String type;
 }
