@@ -17,5 +17,4 @@ src/test/resources/token.properties
 src/test/resources/user.properties
 
 ### Allure ###
-allure-results/
 .allure/

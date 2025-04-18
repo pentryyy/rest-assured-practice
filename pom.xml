@@ -170,6 +170,8 @@
             </argLine>
             <systemPropertyVariables>
                 <junit.jupiter.extensions.autodetection.enabled>true</junit.jupiter.extensions.autodetection.enabled>
+                 <!-- Добавляем кастомный путь для Allure -->
+                <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
             </systemPropertyVariables>
           </configuration>
         </plugin>
