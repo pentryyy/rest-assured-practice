@@ -28,16 +28,27 @@ import com.pentryyy.dto.request.UpdateIssue;
 import com.pentryyy.dto.request.Value;
 import com.pentryyy.dto.response.ResponseItem;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Step;
+import io.qameta.allure.Story;
 import io.restassured.http.ContentType;
 
 import static org.awaitility.Awaitility.await;
 
+@Epic("Управление задачами")
+@Feature("Полный цикл работы с задачами")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class) 
 public class IssuesTest extends BaseTest {
 
     private static Issue issue;
 
     @BeforeAll
+    @Step("Создание тестового проекта")
+    @Description("Создание проекта перед всеми тестами для обеспечения изолированного окружения")
     static void createProject() {
 
         String createdProjectId =
@@ -55,6 +66,9 @@ public class IssuesTest extends BaseTest {
 
     @Test
     @Order(1)
+    @Story("Создание новой задачи")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Проверка успешного создания задачи с валидными данными")
     void testCreateIssue() {
 
         String timestamp = LocalDateTime
@@ -90,6 +104,9 @@ public class IssuesTest extends BaseTest {
 
     @Test
     @Order(2)
+    @Story("Поиск задач")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Поиск созданной задачи по ID")
     void testFindCurrentIssue() {
 
         ResponseItem responseItem = 
@@ -112,6 +129,9 @@ public class IssuesTest extends BaseTest {
 
     @Test
     @Order(2)
+    @Story("Поиск задач")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Получение полного списка задач в системе")
     void testFindAllIssues() {
 
         List<ResponseItem> issues = 
@@ -131,6 +151,9 @@ public class IssuesTest extends BaseTest {
     
     @Test
     @Order(2)
+    @Story("Работа с комментариями")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Добавление комментария к существующей задаче")
     void testCreateIssueComment() {
         
         String timestamp = LocalDateTime
@@ -158,6 +181,9 @@ public class IssuesTest extends BaseTest {
 
     @Test
     @Order(3)
+    @Story("Редактирование задач")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Обновление данных существующей задачи")
     void testUpdateIssue() {
 
         String timestamp = LocalDateTime
@@ -200,6 +226,9 @@ public class IssuesTest extends BaseTest {
 
     @Test
     @Order(4)
+    @Story("Удаление задач")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Проверка корректного удаления задачи")
     void testDeleteIssue() {
 
         given()
@@ -220,6 +249,8 @@ public class IssuesTest extends BaseTest {
     }
 
     @AfterAll
+    @Step("Очистка тестовых данных")
+    @Description("Удаление тестового проекта после выполнения всех тестов")
     static void deleteProject() {
 
         given()

@@ -16,16 +16,27 @@ import com.pentryyy.component.BaseTest;
 import com.pentryyy.component.UrlPaths;
 import com.pentryyy.dto.response.ResponseItem;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 import io.restassured.http.ContentType;
 
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 
+@Epic("Управление проектами")
+@Feature("Полный жизненный цикл проекта")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class) 
 public class ProjectsTest extends BaseTest {
 
     @Test
     @Order(1)
+    @Story("Создание проекта")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Проверка успешного создания нового проекта с валидными данными")
     void testCreateProject() {
 
         ResponseItem responseItem = 
@@ -46,6 +57,9 @@ public class ProjectsTest extends BaseTest {
 
     @Test
     @Order(2)
+    @Story("Поиск проектов")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Поиск созданного проекта по ID и проверка корректности данных")
     void testFindCurrentProject() {
 
         ResponseItem responseItem = 
@@ -64,6 +78,9 @@ public class ProjectsTest extends BaseTest {
 
     @Test
     @Order(2)
+    @Story("Поиск проектов")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Получение полного списка проектов в системе")
     void testFindAllProjects() {
 
         List<ResponseItem> projects = 
@@ -83,6 +100,9 @@ public class ProjectsTest extends BaseTest {
     
     @Test
     @Order(3)
+    @Story("Удаление проекта")
+    @Severity(SeverityLevel.BLOCKER)
+    @Description("Проверка корректного удаления проекта и его отсутствия в системе")
     void testDeleteProject() {
 
         given()
