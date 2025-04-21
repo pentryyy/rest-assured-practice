@@ -1,11 +1,9 @@
 package com.pentryyy;
 
-import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -18,7 +16,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import com.pentryyy.api.IssueApiClient;
 import com.pentryyy.component.BaseTest;
+import com.pentryyy.component.HttpMethod;
 import com.pentryyy.component.UrlPaths;
 import com.pentryyy.dto.request.CustomFields;
 import com.pentryyy.dto.request.Issue;
@@ -27,6 +27,7 @@ import com.pentryyy.dto.request.ProjectRef;
 import com.pentryyy.dto.request.UpdateIssue;
 import com.pentryyy.dto.request.Value;
 import com.pentryyy.dto.response.ResponseItem;
+import com.pentryyy.steps.ProjectSteps;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
@@ -35,9 +36,6 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Step;
 import io.qameta.allure.Story;
-import io.restassured.http.ContentType;
-
-import static org.awaitility.Awaitility.await;
 
 @Epic("Управление задачами")
 @Feature("Полный цикл работы с задачами")
@@ -50,18 +48,7 @@ public class IssuesTest extends BaseTest {
     @Step("Создание тестового проекта")
     @Description("Создание проекта перед всеми тестами для обеспечения изолированного окружения")
     static void createProject() {
-
-        String createdProjectId =
-            given()
-                .contentType(ContentType.JSON)
-                .body(project)
-            .when()
-                .post(UrlPaths.CREATE_PROJECT.toString())
-            .then()
-                .statusCode(200)
-                .extract().path("id");
-
-        project.setCreatedProjectId(createdProjectId);
+       ProjectSteps.createProject(project);
     }
 
     @Test
@@ -86,15 +73,11 @@ public class IssuesTest extends BaseTest {
                 .type("Project").build()
             ).build();
 
-        ResponseItem responseItem = 
-            given()
-                .contentType(ContentType.JSON)
-                .body(issue)
-            .when()
-                .post(UrlPaths.CREATE_ISSUE.toString())
-            .then()
-                .statusCode(200)
-                .extract().as(ResponseItem.class);
+        ResponseItem responseItem = IssueApiClient.actionWithItem(
+            issue, 
+            UrlPaths.CREATE_ISSUE.toString(),
+            HttpMethod.POST
+        );
 
         issue.setCreatedIssueId(responseItem.getId());
 
@@ -109,13 +92,7 @@ public class IssuesTest extends BaseTest {
     @Description("Поиск созданной задачи по ID")
     void testFindCurrentIssue() {
 
-        ResponseItem responseItem = 
-            given()
-            .when()
-                .get(UrlPaths.FIND_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
-            .then()
-                .statusCode(200)
-                .extract().as(ResponseItem.class);
+        ResponseItem responseItem = IssueApiClient.findCurrentIssue(issue);
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
@@ -134,12 +111,7 @@ public class IssuesTest extends BaseTest {
     @Description("Получение полного списка задач в системе")
     void testFindAllIssues() {
 
-        List<ResponseItem> issues = 
-            given()
-            .when()
-                .get(UrlPaths.FIND_ALL_ISSUES.toString())
-            .then()
-                .extract().jsonPath().getList(".", ResponseItem.class);
+        List<ResponseItem> issues = IssueApiClient.findAllIssues();
 
         assertFalse(issues.isEmpty());
 
@@ -165,15 +137,11 @@ public class IssuesTest extends BaseTest {
         IssueComment issueComment = IssueComment.builder()
             .text(text).build();
                                                 
-        ResponseItem responseItem = 
-            given()
-                .contentType(ContentType.JSON)
-                .body(issueComment)
-            .when()
-                .post(UrlPaths.CREATE_ISSUE_COMMENT.withId(issue.getCreatedIssueId()))
-            .then()
-                .statusCode(200)
-                .extract().as(ResponseItem.class);
+        ResponseItem responseItem = IssueApiClient.actionWithItem(
+            issueComment, 
+            UrlPaths.CREATE_ISSUE_COMMENT.withId(issue.getCreatedIssueId()),
+            HttpMethod.POST
+        );
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
@@ -208,15 +176,11 @@ public class IssuesTest extends BaseTest {
             ))
             .type("Issue").build();
 
-        ResponseItem responseItem = 
-            given()
-                .contentType(ContentType.JSON)
-                .body(updateIssue)
-            .when()
-                .put(UrlPaths.UPDATE_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
-            .then()
-                .statusCode(200)
-                .extract().as(ResponseItem.class);
+        ResponseItem responseItem = IssueApiClient.actionWithItem(
+            updateIssue, 
+            UrlPaths.UPDATE_ISSUE_BY_ID.withId(issue.getCreatedIssueId()), 
+            HttpMethod.PUT
+        );
 
         issue.setCreatedIssueId(responseItem.getId());
 
@@ -230,33 +194,14 @@ public class IssuesTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @Description("Проверка корректного удаления задачи")
     void testDeleteIssue() {
-
-        given()
-        .when()
-            .delete(UrlPaths.DELETE_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
-        .then()
-            .statusCode(200);
-
-        await().atMost(Duration.ofSeconds(5))
-            .pollInterval(Duration.ofSeconds(1))
-            .untilAsserted(() -> 
-                given()
-                .when()
-                    .get(UrlPaths.FIND_ISSUE_BY_ID.withId(issue.getCreatedIssueId()))
-                .then()
-                    .statusCode(404)
-        );
+        IssueApiClient.deleteIssue(issue);
+        IssueApiClient.waitUntilIssueIsDeleted(issue, 5);
     }
 
     @AfterAll
     @Step("Очистка тестовых данных")
     @Description("Удаление тестового проекта после выполнения всех тестов")
     static void deleteProject() {
-
-        given()
-        .when()
-            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
-        .then()
-            .statusCode(200);
+        ProjectSteps.deleteProject(project);
     }
 }
