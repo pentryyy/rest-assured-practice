@@ -18,3 +18,4 @@ src/test/resources/user.properties
 
 ### Allure ###
 .allure/
+allure-results/

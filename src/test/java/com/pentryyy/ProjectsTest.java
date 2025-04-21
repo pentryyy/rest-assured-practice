@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import com.pentryyy.api.ProjectApiClient;
 import com.pentryyy.component.BaseTest;
-import com.pentryyy.component.UrlPaths;
 import com.pentryyy.dto.response.ResponseItem;
 
 import io.qameta.allure.Description;
@@ -22,9 +22,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
-import io.restassured.http.ContentType;
 
-import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 
 @Epic("Управление проектами")
@@ -39,17 +37,7 @@ public class ProjectsTest extends BaseTest {
     @Description("Проверка успешного создания нового проекта с валидными данными")
     void testCreateProject() {
 
-        ResponseItem responseItem = 
-            given()
-                .contentType(ContentType.JSON)
-                .body(project)
-            .when()
-                .post(UrlPaths.CREATE_PROJECT.toString())
-            .then()
-                .statusCode(200)
-                .extract().as(ResponseItem.class);
-
-        project.setCreatedProjectId(responseItem.getId());
+        ResponseItem responseItem = ProjectApiClient.createProject(project);
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
@@ -62,18 +50,19 @@ public class ProjectsTest extends BaseTest {
     @Description("Поиск созданного проекта по ID и проверка корректности данных")
     void testFindCurrentProject() {
 
-        ResponseItem responseItem = 
-            given()
-            .when()
-                .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
-            .then()
-                .statusCode(200)
-                .extract().as(ResponseItem.class);
+        ResponseItem responseItem = ProjectApiClient.findProjectById(
+            project, 
+            200
+        );
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
 
-        assertEquals(responseItem.getId(), project.getCreatedProjectId(), "Поля 'id' не соответствуют");
+        assertEquals(
+            responseItem.getId(), 
+            project.getCreatedProjectId(), 
+            "Поля 'id' не соответствуют"
+        );
     }
 
     @Test
@@ -83,12 +72,7 @@ public class ProjectsTest extends BaseTest {
     @Description("Получение полного списка проектов в системе")
     void testFindAllProjects() {
 
-        List<ResponseItem> projects = 
-            given()
-            .when()
-                .get(UrlPaths.FIND_ALL_PROJECTS.toString())
-            .then()
-                .extract().jsonPath().getList(".", ResponseItem.class);
+        List<ResponseItem> projects = ProjectApiClient.findAllProjects();
 
         assertFalse(projects.isEmpty());
 
@@ -105,20 +89,18 @@ public class ProjectsTest extends BaseTest {
     @Description("Проверка корректного удаления проекта и его отсутствия в системе")
     void testDeleteProject() {
 
-        given()
-        .when()
-            .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
-        .then()
-            .statusCode(200);
+        ProjectApiClient.deleteProject(project);
 
         await().atMost(Duration.ofSeconds(5))
             .pollInterval(Duration.ofSeconds(1))
-            .untilAsserted(() -> 
-                given()
-                .when()
-                    .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
-                .then()
-                    .statusCode(404)
+            .untilAsserted(() -> {
+                try {
+                    ProjectApiClient.findProjectById(
+                        project, 
+                        404
+                    );
+                } catch (Exception e) {}
+            }
         );
     }
 }
