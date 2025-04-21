@@ -1,7 +1,9 @@
 package com.pentryyy.api;
 
 import static io.restassured.RestAssured.given;
+import static org.awaitility.Awaitility.await;
 
+import java.time.Duration;
 import java.util.List;
 
 import com.pentryyy.component.UrlPaths;
@@ -28,13 +30,13 @@ public class ProjectApiClient {
         return responseItem;
     }
 
-    public static ResponseItem findProjectById(Project project, int expectedStatusCode) {
+    public static ResponseItem findProjectById(Project project) {
         return 
             given()
             .when()
                 .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
             .then()
-                .statusCode(expectedStatusCode)
+                .statusCode(200)
                 .extract().as(ResponseItem.class);
     }
 
@@ -53,5 +55,17 @@ public class ProjectApiClient {
             .delete(UrlPaths.DELETE_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
         .then()
             .statusCode(200);
+    }
+
+    public static void waitUntilProjectIsDeleted(Project project, long timeoutSeconds) {
+        await().atMost(Duration.ofSeconds(5))
+            .pollInterval(Duration.ofSeconds(1))
+            .untilAsserted(() -> 
+                given()
+                .when()
+                    .get(UrlPaths.FIND_PROJECT_BY_ID.withId(project.getCreatedProjectId()))
+                .then()
+                    .statusCode(404)
+        );
     }
 }
