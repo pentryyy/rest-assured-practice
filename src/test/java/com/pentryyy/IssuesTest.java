@@ -16,10 +16,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import com.pentryyy.api.IssueApiClient;
 import com.pentryyy.component.BaseTest;
-import com.pentryyy.component.HttpMethod;
-import com.pentryyy.component.UrlPaths;
 import com.pentryyy.dto.request.CustomFields;
 import com.pentryyy.dto.request.Issue;
 import com.pentryyy.dto.request.IssueComment;
@@ -27,6 +24,7 @@ import com.pentryyy.dto.request.ProjectRef;
 import com.pentryyy.dto.request.UpdateIssue;
 import com.pentryyy.dto.request.Value;
 import com.pentryyy.dto.response.ResponseItem;
+import com.pentryyy.steps.IssueSteps;
 import com.pentryyy.steps.ProjectSteps;
 
 import io.qameta.allure.Description;
@@ -73,11 +71,7 @@ public class IssuesTest extends BaseTest {
                 .type("Project").build()
             ).build();
 
-        ResponseItem responseItem = IssueApiClient.actionWithItem(
-            issue, 
-            UrlPaths.CREATE_ISSUE.toString(),
-            HttpMethod.POST
-        );
+        ResponseItem responseItem = IssueSteps.createIssue(issue);
 
         issue.setCreatedIssueId(responseItem.getId());
 
@@ -92,7 +86,7 @@ public class IssuesTest extends BaseTest {
     @Description("Поиск созданной задачи по ID")
     void testFindCurrentIssue() {
 
-        ResponseItem responseItem = IssueApiClient.findCurrentIssue(issue);
+        ResponseItem responseItem = IssueSteps.findCurrentIssue(issue);
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
         assertNotNull(responseItem.getType(), "Поле '$type' отсутствует");
@@ -111,7 +105,7 @@ public class IssuesTest extends BaseTest {
     @Description("Получение полного списка задач в системе")
     void testFindAllIssues() {
 
-        List<ResponseItem> issues = IssueApiClient.findAllIssues();
+        List<ResponseItem> issues = IssueSteps.findAllIssues();
 
         assertFalse(issues.isEmpty());
 
@@ -137,10 +131,9 @@ public class IssuesTest extends BaseTest {
         IssueComment issueComment = IssueComment.builder()
             .text(text).build();
                                                 
-        ResponseItem responseItem = IssueApiClient.actionWithItem(
-            issueComment, 
-            UrlPaths.CREATE_ISSUE_COMMENT.withId(issue.getCreatedIssueId()),
-            HttpMethod.POST
+        ResponseItem responseItem = IssueSteps.createIssueComment(
+            issue, 
+            issueComment
         );
 
         assertNotNull(responseItem.getId(), "Поле 'id' отсутствует");
@@ -176,10 +169,9 @@ public class IssuesTest extends BaseTest {
             ))
             .type("Issue").build();
 
-        ResponseItem responseItem = IssueApiClient.actionWithItem(
-            updateIssue, 
-            UrlPaths.UPDATE_ISSUE_BY_ID.withId(issue.getCreatedIssueId()), 
-            HttpMethod.PUT
+        ResponseItem responseItem = IssueSteps.updateIssue(
+            issue, 
+            updateIssue
         );
 
         issue.setCreatedIssueId(responseItem.getId());
@@ -194,8 +186,8 @@ public class IssuesTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @Description("Проверка корректного удаления задачи")
     void testDeleteIssue() {
-        IssueApiClient.deleteIssue(issue);
-        IssueApiClient.waitUntilIssueIsDeleted(issue, 5);
+        IssueSteps.deleteIssue(issue);
+        IssueSteps.waitUntilIssueIsDeleted(issue, 5);
     }
 
     @AfterAll
